@@ -82,7 +82,7 @@ namespace WordTranslatorTool
                         var paragraphs = GetAllParagraphs(body);
                         Log($"📄 偵測段落數量：{paragraphs.Count}");
 
-                        int batchSize = 10; // 可調整大小，例如 5 或 20，視文件和 API 率限
+                        int batchSize = 5; // 可調整大小，例如 5 或 20，視文件和 API 率限
                         List<Paragraph> batchParagraphs = new List<Paragraph>();
                         List<string> batchTexts = new List<string>();
 
@@ -121,10 +121,11 @@ namespace WordTranslatorTool
                             batchTexts.Add(originalText);
 
                             // 若批滿或到最後，處理批次
-                            if (batchTexts.Count == batchSize || i == paragraphs.Count - 1)
+                            if (batchTexts.Count == batchSize)
                             {
                                 if (batchTexts.Count > 0) // 確保有內容才翻譯
                                 {
+                                    Log($"🔤 執行剩餘批次翻譯，段落數: {batchTexts.Count}");
                                     try
                                     {
                                         var translatedTexts = await TranslateBatchAsync(batchTexts);
@@ -139,12 +140,35 @@ namespace WordTranslatorTool
                                     {
                                         Log($"⚠️ 批次翻譯失敗（影響段落範圍 {i - batchTexts.Count + 1} 到 {i}）：{ex.Message}");
                                     }
+                                    // 清空批次
+                                    batchParagraphs.Clear();
+                                    batchTexts.Clear();
                                 }
-                                // 清空批次
-                                batchParagraphs.Clear();
-                                batchTexts.Clear();
+                                
                             }
+
                             progressBar.Value = (int)((i + 1) * 100.0 / paragraphs.Count);
+                        }
+                        // 迴圈結束後，處理剩餘批次
+                        if (batchTexts.Count > 0)
+                        {
+                            Log($"🔤 執行剩餘批次翻譯，段落數: {batchTexts.Count}");
+                            try
+                            {
+                                var translatedTexts = await TranslateBatchAsync(batchTexts);
+                                for (int j = 0; j < batchParagraphs.Count; j++)
+                                {
+                                    string translatedText = translatedTexts[j];
+                                    string mode = cmbTranslateMode.SelectedItem.ToString();
+                                    ReplaceParagraphTextWithTranslation(batchParagraphs[j], translatedText, mode);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Log($"⚠️ 剩餘批次翻譯失敗：{ex.Message}");
+                            }
+                            batchParagraphs.Clear();
+                            batchTexts.Clear();
                         }
                         doc.MainDocumentPart.Document.Save();
                         Log("✅ 已儲存翻譯後檔案：" + outputPath);
@@ -216,10 +240,11 @@ namespace WordTranslatorTool
                     model = model,
                     messages = new[]
                     {
-                new { role = "system", content = $"你是一位專業的技術文件翻譯專家，請將使用者提供的段落從「{sourceLang}」翻譯為「{targetLang}」，並嚴格遵守以下規則：\r\n1. 保留所有專有名詞，例如產品名稱、技術術語（如：Mail2000、Daemon OTP、OutlookSync），不進行翻譯，請保持原文。\r\n2. 保留格式不變：URL、Email 地址、程式碼片段、Log 格式（例如 [2024/08/30 10:14:26] [INF]）等請原樣保留，不得修改或翻譯。\r\n3. 維持段落格式與語意邏輯：若原文有列表、縮排、表格結構或粗體標示，翻譯時請盡可能使用相對應的格式（例如 1. 項目 → 1. Item）。\r\n4. 混合語言處理：若句子中含有純英文、數字、符號或已屬專有名詞，請勿翻譯，直接保留原文。\r\n5. 翻譯品質要求：語句需通順自然，符合技術文件的專業語調，避免直譯與語意錯誤。Keep translations concise to fit all items.\r\n6. 返回格式：嚴格返回 JSON 物件，如 {{\"translations\": [\"譯文1\", \"譯文2\", ...]}}。The translations array must have exactly {originalTexts.Count} items, one for each input paragraph. Do not add '段落 N:' or 'Paragraph N:' or any prefixes/labels to the translations - pure translation text only. Always return ONLY the JSON object, no additional text or explanations." },
-                new { role = "user", content = combinedText }
-            },
-                    response_format = new { type = "json_object" }  // 強制 JSON mode
+                        new { role = "system", content = $"你是一位專業的技術文件翻譯專家，請將使用者提供的段落從「{sourceLang}」翻譯為「{targetLang}」，並嚴格遵守以下規則：\r\n1. 保留所有專有名詞，例如產品名稱、技術術語（如：Mail2000、Daemon OTP、OutlookSync），不進行翻譯，請保持原文。\r\n2. 保留格式不變：URL、Email 地址、程式碼片段、Log 格式（例如 [2024/08/30 10:14:26] [INF]）等請原樣保留，不得修改或翻譯。\r\n3. 維持段落格式與語意邏輯：若原文有列表、縮排、表格結構或粗體標示，翻譯時請盡可能使用相對應的格式（例如 1. 項目 → 1. Item）。\r\n4. 混合語言處理：若句子中含有純英文、數字、符號或已屬專有名詞，請勿翻譯，直接保留原文。\r\n5. 翻譯品質要求：語句需通順自然，符合技術文件的專業語調，避免直譯與語意錯誤。Keep translations concise to fit all items.\r\n6. 返回格式：嚴格返回 JSON 物件，如 {{\"translations\": [\"譯文1\", \"譯文2\", ...]}}。The translations array must have exactly {originalTexts.Count} items. Translate all paragraphs completely, even if long. Do not add '段落 N:' or 'Paragraph N:' or any prefixes/labels to the translations - pure translation text only. Always return ONLY the JSON object, no additional text or explanations." },
+                        new { role = "user", content = combinedText }
+                    },
+                    response_format = new { type = "json_object" },  // 強制 JSON mode
+                    max_tokens = 4096
                 };
                 var json = System.Text.Json.JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -238,7 +263,11 @@ namespace WordTranslatorTool
 
                 // 解析 JSON
                 var jsonDoc = System.Text.Json.JsonDocument.Parse(responseContent);
-                var translations = jsonDoc.RootElement.GetProperty("translations").EnumerateArray().Select(e => e.GetString()?.Replace("Paragraph ", "").Replace("paragraph ", "").Replace("段落 ", "").Trim() ?? "").ToList();  // 移除可能的 "Paragraph N:" 前綴
+                var translations = jsonDoc.RootElement.GetProperty("translations").EnumerateArray().Select(e => {
+                    string t = e.GetString() ?? "";
+                    t = System.Text.RegularExpressions.Regex.Replace(t, @"(?i)^paragraph\s*\d+:\s*", "").Trim();  // 移除 "Paragraph N: " 或 "paragraph n: "
+                    return t;
+                }).ToList();
 
                 if (translations.Count != originalTexts.Count)
                 {
