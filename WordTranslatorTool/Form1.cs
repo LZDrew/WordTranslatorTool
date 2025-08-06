@@ -36,6 +36,8 @@ namespace WordTranslatorTool
             cmbTranslateMode.SelectedIndex = 0;
 
             txtApiKey.PasswordChar = '*'; // 隱藏
+            txtFileName.Text = ""; // 初始化空
+            txtFileName.ReadOnly = true; // 確保不可編輯
         }
 
 
@@ -49,6 +51,7 @@ namespace WordTranslatorTool
                 {
                     currentFilePath = openFileDialog.FileName;
                     lblInputFile.Text = $"已選擇：{Path.GetFileName(currentFilePath)}";
+                    txtFileName.Text = currentFilePath; // 加這行更新 TextBox
                     Log($"載入檔案：{currentFilePath}");
                 }
             }
@@ -239,6 +242,11 @@ namespace WordTranslatorTool
         }
 
         private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cmbSourceLang_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }

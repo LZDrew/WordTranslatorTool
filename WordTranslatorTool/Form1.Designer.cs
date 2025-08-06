@@ -48,14 +48,17 @@
             tableLayoutPanel1 = new TableLayoutPanel();
             lblTranslateMode = new Label();
             cmbTranslateMode = new ComboBox();
+            tableLayoutPanel2 = new TableLayoutPanel();
+            txtFileName = new TextBox();
             tableProgress.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
             SuspendLayout();
             // 
             // lblInputFile
             // 
             lblInputFile.AutoSize = true;
-            lblInputFile.Location = new Point(15, 180);
+            lblInputFile.Location = new Point(12, 149);
             lblInputFile.Name = "lblInputFile";
             lblInputFile.Size = new Size(100, 23);
             lblInputFile.TabIndex = 0;
@@ -63,9 +66,9 @@
             // 
             // btnOpenFile
             // 
-            btnOpenFile.Location = new Point(353, 180);
+            btnOpenFile.Location = new Point(968, 3);
             btnOpenFile.Name = "btnOpenFile";
-            btnOpenFile.Size = new Size(112, 34);
+            btnOpenFile.Size = new Size(112, 29);
             btnOpenFile.TabIndex = 1;
             btnOpenFile.Text = "開啟檔案";
             btnOpenFile.UseVisualStyleBackColor = true;
@@ -85,18 +88,19 @@
             // 
             cmbSourceLang.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbSourceLang.FormattingEnabled = true;
-            cmbSourceLang.Location = new Point(125, 238);
+            cmbSourceLang.Location = new Point(183, 201);
             cmbSourceLang.Name = "cmbSourceLang";
-            cmbSourceLang.Size = new Size(182, 31);
+            cmbSourceLang.Size = new Size(230, 31);
             cmbSourceLang.TabIndex = 3;
+            cmbSourceLang.SelectedIndexChanged += cmbSourceLang_SelectedIndexChanged;
             // 
             // cmbTargetLang
             // 
             cmbTargetLang.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbTargetLang.FormattingEnabled = true;
-            cmbTargetLang.Location = new Point(471, 241);
+            cmbTargetLang.Location = new Point(674, 204);
             cmbTargetLang.Name = "cmbTargetLang";
-            cmbTargetLang.Size = new Size(182, 31);
+            cmbTargetLang.Size = new Size(230, 31);
             cmbTargetLang.TabIndex = 4;
             // 
             // txtApiKey
@@ -111,9 +115,9 @@
             // 
             cmbModel.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbModel.FormattingEnabled = true;
-            cmbModel.Location = new Point(183, 74);
+            cmbModel.Location = new Point(183, 89);
             cmbModel.Name = "cmbModel";
-            cmbModel.Size = new Size(241, 31);
+            cmbModel.Size = new Size(230, 31);
             cmbModel.TabIndex = 6;
             // 
             // progressBar
@@ -127,7 +131,7 @@
             // lblSourceLang
             // 
             lblSourceLang.AutoSize = true;
-            lblSourceLang.Location = new Point(15, 241);
+            lblSourceLang.Location = new Point(13, 205);
             lblSourceLang.Name = "lblSourceLang";
             lblSourceLang.Size = new Size(100, 23);
             lblSourceLang.TabIndex = 11;
@@ -136,7 +140,7 @@
             // lblTargetLang
             // 
             lblTargetLang.AutoSize = true;
-            lblTargetLang.Location = new Point(365, 241);
+            lblTargetLang.Location = new Point(510, 208);
             lblTargetLang.Name = "lblTargetLang";
             lblTargetLang.Size = new Size(100, 23);
             lblTargetLang.TabIndex = 12;
@@ -154,7 +158,7 @@
             // lblModel
             // 
             lblModel.AutoSize = true;
-            lblModel.Location = new Point(12, 78);
+            lblModel.Location = new Point(12, 93);
             lblModel.Name = "lblModel";
             lblModel.Size = new Size(100, 23);
             lblModel.TabIndex = 14;
@@ -236,7 +240,7 @@
             // lblTranslateMode
             // 
             lblTranslateMode.AutoSize = true;
-            lblTranslateMode.Location = new Point(18, 300);
+            lblTranslateMode.Location = new Point(16, 261);
             lblTranslateMode.Name = "lblTranslateMode";
             lblTranslateMode.Size = new Size(100, 23);
             lblTranslateMode.TabIndex = 20;
@@ -246,16 +250,41 @@
             // cmbTranslateMode
             // 
             cmbTranslateMode.FormattingEnabled = true;
-            cmbTranslateMode.Location = new Point(125, 296);
+            cmbTranslateMode.Location = new Point(183, 261);
             cmbTranslateMode.Name = "cmbTranslateMode";
-            cmbTranslateMode.Size = new Size(182, 31);
+            cmbTranslateMode.Size = new Size(230, 31);
             cmbTranslateMode.TabIndex = 21;
+            // 
+            // tableLayoutPanel2
+            // 
+            tableLayoutPanel2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel2.ColumnCount = 2;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel2.Controls.Add(btnOpenFile, 1, 0);
+            tableLayoutPanel2.Controls.Add(txtFileName, 0, 0);
+            tableLayoutPanel2.Location = new Point(183, 143);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 1;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel2.Size = new Size(1083, 35);
+            tableLayoutPanel2.TabIndex = 22;
+            // 
+            // txtFileName
+            // 
+            txtFileName.Dock = DockStyle.Fill;
+            txtFileName.Location = new Point(3, 3);
+            txtFileName.Name = "txtFileName";
+            txtFileName.ReadOnly = true;
+            txtFileName.Size = new Size(959, 30);
+            txtFileName.TabIndex = 2;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(11F, 23F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1281, 1215);
+            Controls.Add(tableLayoutPanel2);
             Controls.Add(cmbTranslateMode);
             Controls.Add(lblTranslateMode);
             Controls.Add(txtLog);
@@ -270,13 +299,14 @@
             Controls.Add(cmbTargetLang);
             Controls.Add(cmbSourceLang);
             Controls.Add(btnSaveFile);
-            Controls.Add(btnOpenFile);
             Controls.Add(lblInputFile);
             Name = "Form1";
             Text = "Form1";
             tableProgress.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
+            tableLayoutPanel2.ResumeLayout(false);
+            tableLayoutPanel2.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -303,5 +333,7 @@
         private TableLayoutPanel tableLayoutPanel1;
         private Label lblTranslateMode;
         private ComboBox cmbTranslateMode;
+        private TableLayoutPanel tableLayoutPanel2;
+        private TextBox txtFileName;
     }
 }
